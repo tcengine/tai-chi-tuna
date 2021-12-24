@@ -175,7 +175,7 @@ class LivingStep:
 
     def __init__(
         self, func: Callable,
-        top_block: HTML = HTML,
+        top_block: HTML = HTML(""),
     ):
         self.output = Output()
         self.func = func

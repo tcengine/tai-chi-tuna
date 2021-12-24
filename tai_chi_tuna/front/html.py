@@ -1,5 +1,6 @@
 __all__ = ["DOM", "list_group", "list_group_kv",
-           "col_sm", "img_dom", "data_url", "image_to_base64"]
+           "col_sm", "img_dom", "data_url", "image_to_base64",
+           "Flash"]
 
 import math
 from IPython.display import HTML as DISPLAY_HTML
@@ -7,6 +8,13 @@ from io import BytesIO
 import base64
 from PIL.Image import Image as ImageClass
 from typing import Any, List, Dict
+from ipywidgets import (
+    HTML,
+    Layout,
+    HBox,
+    Output,
+    Button
+    )
 
 
 class DOM:
@@ -153,3 +161,54 @@ def list_group_kv(data: Dict[str, Any]) -> DOM:
             .append(DOM(f"{deeper(v)}", "span", {"class": "col-sm-7"}))
         result.append(row)
     return list_group(result)
+
+
+class Flash:
+    @staticmethod
+    def create_msg_box(color, text, key:str = None):
+        text = str(text)
+        if key is not None:
+            key = f"<strong>{key}</strong> "
+        else:
+            key = ""
+        text_bar = HTML(f"""<div class='alert alert-{color}' role='alert'>
+        {key} {text}</div>""", layout=Layout(width='95%'))
+        close_btn = Button(description="x", layout=Layout(width='3%'))
+        
+        total = HBox([text_bar, close_btn])
+        def close_bar():
+            total.close()
+        close_btn.click = close_bar
+        return total
+    
+    @classmethod
+    def get_info(cls, text, key:str = None):
+        return cls.create_msg_box('info', text, key)
+    
+    @classmethod
+    def get_warning(cls, text, key:str = None):
+        return cls.create_msg_box('warning', text, key)
+    
+    @classmethod
+    def get_danger(cls, text, key:str = None):
+        return cls.create_msg_box('danger', text, key)
+    
+    @classmethod
+    def get_success(cls, text, key:str = None):
+        return cls.create_msg_box('success', text, key)
+    
+    @classmethod
+    def info(cls, text, key:str = None):
+        display(cls.get_info(text, key))
+    
+    @classmethod
+    def warning(cls, text, key:str = None):
+        display(cls.get_warning(text, key))
+    
+    @classmethod
+    def danger(cls, text, key:str = None):
+        display(cls.get_danger(text, key))
+    
+    @classmethod
+    def success(cls, text, key:str = None):
+        display(cls.get_success(text, key))
