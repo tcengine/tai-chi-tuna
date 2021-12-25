@@ -16,7 +16,7 @@ from tai_chi_tuna.front.widget import interact_intercept
 
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
 from tai_chi_tuna.flow.to_quantify import (
-    set_quantify, execute_quantify, TaiChiDataset, choose_xy)
+    execute_quantify, TaiChiDataset, choose_xy)
 from tai_chi_tuna.flow.to_model import set_datamodule, assemble_model
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
@@ -63,11 +63,6 @@ class StepQuantify(TaiChiStep):
         super().__init__("Quantify", progress)
 
     def action(self, **kwargs):
-        set_quantify(
-            df=self.df,
-            phase=self.phase,
-            enrichments=self.enrichments_map
-        )
         execute_enrich(
             df=self.df,
             phase=self.phase,
