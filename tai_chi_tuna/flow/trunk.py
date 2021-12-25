@@ -53,7 +53,10 @@ class StepEnrich(TaiChiStep):
         super().__init__("Enrich", progress)
 
     def action(self, **kwargs):
-        set_enrich(df=self.df, phase=self.phase)
+        set_enrich(
+            df=self.df, phase=self.phase,
+            enrichments_map=self.enrichments_map
+            )
 
 # Phase 1 - Quantify
 
@@ -178,5 +181,5 @@ class TaiChiLearn:
         self.step_by_step()
 
     def __repr__(self):
-        return f"{self.step_by_step} with keys:" + \
+        return f"{self.step_by_step} with keys:\n" + \
             f"{list(self.progress.keys())}"
