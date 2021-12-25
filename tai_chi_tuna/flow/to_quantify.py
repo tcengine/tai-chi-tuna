@@ -1,6 +1,6 @@
 __all__ = [
     "TaiChiDataset", "choose_xy", "execute_quantify",
-    "SIZE_DIMENSION","BATCH_SIZE","SEQUENCE_SIZE",
+    "SIZE_DIMENSION", "BATCH_SIZE", "SEQUENCE_SIZE",
     "IMAGE_SIZE"
 ]
 
@@ -16,23 +16,29 @@ import numpy as np
 import pandas as pd
 from tqdm.notebook import tqdm
 
+
 class SIZE_DIMENSION:
     pass
+
 
 class BATCH_SIZE(SIZE_DIMENSION):
     def __repr__(self): return f"BATCH_SIZE"
 
+
 class SEQUENCE_SIZE(SIZE_DIMENSION):
     pass
 
+
 class IMAGE_SIZE(SIZE_DIMENSION):
     pass
+
 
 class TaiChiDataset(Dataset):
     """
     A pytorch dataset working under our core engine
     The dataset class should on be defined here once
     """
+
     def __init__(self, df, columns: List[Any] = None):
         self.df = df
         self.columns = list(df.columns) if columns is None else columns
@@ -56,10 +62,10 @@ class TaiChiDataset(Dataset):
             else:
                 rt[col] = v
         return rt
-    
+
     def split(
         self,
-        valid_ratio:FLOAT(min_=0.01, max_=0.5, default=.1, step=0.01)=.1
+        valid_ratio: FLOAT(min_=0.01, max_=0.5, default=.1, step=0.01) = .1
     ) -> Tuple[Any]:
         """
         Split dataset to train, validation
@@ -75,7 +81,7 @@ class TaiChiDataset(Dataset):
         self,
         batch_size: LIST(options=[1, 2, 4, 8, 16, 32, 64, 128, 256, 512], default=32) = 32,
         shuffle: LIST(options=[True, False], default=False) = False,
-        num_workers: LIST(options=[0, 2, 4, 8, 16], default=0) =0,
+        num_workers: LIST(options=[0, 2, 4, 8, 16], default=0) = 0,
     ) -> DataLoader:
         """
         Create dataloader from dataset
@@ -85,6 +91,7 @@ class TaiChiDataset(Dataset):
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers)
+
 
 def choose_xy(**kwargs):
     df = kwargs.get("df")
@@ -97,26 +104,27 @@ def choose_xy(**kwargs):
     display(df.sample(5))
     display(HTML("<hr>"))
     DOM("Please Choose Column", "h3")()
-    DOM("The AI model will try to guess the Y with the input X", "div", {"style":"color:#666699"})()
-    
+    DOM("The AI model will try to guess the Y with the input X",
+        "div", {"style": "color:#666699"})()
+
     task = 'quantify'
     # enrich by columns
     if "enrich" in phase:
         by_destination = dict((en['dst'], en) for en in phase['enrich'])
     else:
         by_destination = dict()
-    
+
     data_list = phase[task] if task in phase else []
     mol_box = EditableList(data_list)
     display(mol_box)
 
     @interact_manual
-    def set_quantify_(src=list(df.columns), use_for = ["As X", "As Y"]):
+    def set_quantify_(src=list(df.columns), use_for=["As X", "As Y"]):
         DOM(f"Quantify Column: {src} {use_for}", "h4")()
         display(df[[src, ]].head(3))
-        
+
         quantify_dropdown = Dropdown(options=list(QUANTIFY.keys()))
-        
+
         # check the hint from last step
         prefer = None
         if src in by_destination:
@@ -126,28 +134,29 @@ def choose_xy(**kwargs):
             # In case the enrich layer has the preference
             if hasattr(cls, "prefer"):
                 prefer = cls.prefer
-                
+
                 # set default value to drop down value,
                 # if the the previous hint suggest so
                 quantify_dropdown.value = prefer
                 DOM(f"Prefered quantifying:\t{cls.prefer}", "h4")()
             if hasattr(cls, "typing"):
                 DOM(f"Output data type:\t{cls.typing}", "h4")()
-        
+
         @interact_manual
-        def choose_quantify(quantify = quantify_dropdown):
+        def choose_quantify(quantify=quantify_dropdown):
             cls = QUANTIFY[quantify]
+
             def result_callback(kwargs):
-                extra = {"src": src, "x":(use_for=="As X"),
-                        "kwargs": kwargs, "quantify": cls.__name__}
+                extra = {"src": src, "x": (use_for == "As X"),
+                         "kwargs": kwargs, "quantify": cls.__name__}
                 mol_box+extra
                 phase['quantify'] = mol_box.get_data()
-                
+
             obj, decoded = init_interact(cls, result_callback)
 
 
 def execute_quantify(
-    df: pd.DataFrame, phase:PhaseConfig, 
+    df: pd.DataFrame, phase: PhaseConfig,
     quantify_map: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
@@ -156,18 +165,18 @@ def execute_quantify(
     # existance check
     if 'quantify' not in phase:
         raise KeyError(f"No quantify stepset")
-    
+
     qdict = dict()
-    for i, qconf in tqdm(enumerate(phase['quantify']), leave = False):
+    for i, qconf in tqdm(enumerate(phase['quantify']), leave=False):
         qname = qconf['quantify']
         kwargs = qconf['kwargs']
         src = qconf['src']
         x = qconf['x']
-        
+
         cls = quantify_map[qname]
         qobj = cls(**kwargs)
         qobj.src = src
         qobj.is_x = x
         qobj.adapt(df[src])
-        qdict.update({src:qobj})
+        qdict.update({src: qobj})
     return qdict

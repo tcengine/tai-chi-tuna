@@ -223,7 +223,7 @@ class StepByStep:
         # clear old output
         step.output.clear_output()
         self.kwargs.update(kwargs)
-        step(progress=self, **self.kwargs)
+        step(**self.kwargs)
 
     def create_control_bar(self,):
         self.bar_hbox = list()
@@ -307,7 +307,7 @@ class StepByStep:
         with self.page_output:
             display(step.output)
         if key not in self.execute_cache:
-            rt = step(progress=self, **self.kwargs)
+            rt = step(**self.kwargs)
             if hasattr(rt, "keys"):
                 self.kwargs(rt)
             self.execute_cache[key] = True
