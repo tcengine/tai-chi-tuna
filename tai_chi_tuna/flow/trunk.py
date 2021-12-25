@@ -169,7 +169,7 @@ class TaiChiLearn:
 
         # create a step by step interactive
         self.step_by_step = StepByStep(
-            self.steps, self.progress)
+            self.steps, kwargs = self.progress)
 
     def __call__(self):
         """
