@@ -96,7 +96,6 @@ class TaiChiDataset(Dataset):
 def choose_xy(**kwargs):
     df = kwargs.get("df")
     phase = kwargs.get("phase")
-    progress = kwargs.get('progress')
     ENRICHMENTS = kwargs.get("enrichments_map")
     QUANTIFY = kwargs.get("quantify_map")
 

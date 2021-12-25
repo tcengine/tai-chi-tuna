@@ -86,9 +86,7 @@ class StepQuantify(TaiChiStep):
             list_group_kv(ds[idx])()
 
         choose_xy(
-            progress=self.progress,
-            df=self.df,
-            phase=self.phase)
+            **self.progress)
 
 # Phase 3 - Modeling
 
