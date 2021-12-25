@@ -218,7 +218,7 @@ def set_datamodule(progress, df, qdict, phase,
                           key="Warning")
             return
         datamodule.configure(**phase['batch_level'])
-        progress.kwargs['datamodule'] = datamodule
+        progress['datamodule'] = datamodule
 
         model_output.clear_output()
         with model_output:
