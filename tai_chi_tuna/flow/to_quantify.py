@@ -1,7 +1,7 @@
 __all__ = [
     "TaiChiDataset", "choose_xy", "execute_quantify",
     "SIZE_DIMENSION", "BATCH_SIZE", "SEQUENCE_SIZE",
-    "IMAGE_SIZE"
+    "IMAGE_SIZE", "save_qdict", "load_qdict",
 ]
 
 from tai_chi_tuna.front.html import DOM
@@ -14,6 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from typing import Dict, List, Tuple, Any
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from tqdm.notebook import tqdm
 
 
@@ -153,6 +154,31 @@ def choose_xy(**kwargs):
 
             obj, decoded = init_interact(cls, result_callback)
 
+def save_qdict(project:Path, qdict: Dict[str, Any]):
+    """
+    Save the quantify dict to phase
+    """
+    project = Path(project)
+    project.mkdir(exist_ok=True)
+    for name, quantify in qdict.items():
+        quantify.save(project, name)
+    return project/"quantify"
+
+def load_qdict(
+    project:Path, phase: PhaseConfig, quantify_map: Dict[str, Any]
+    ) -> Dict[str, Any]:
+    """
+    Load the quantify dict from phase and disk saved info
+    """
+    project = Path(project)
+    qdict = dict()
+    for quant_conf in phase['quantify']:
+        quantify_cls_name = quant_conf['quantify']
+        quantify_cls = quantify_map[quantify_cls_name]
+        name = quant_conf['src']
+        qobj = quantify_cls.load(project, name)
+        qdict[name] = qobj
+    return qdict
 
 def execute_quantify(
     df: pd.DataFrame, phase: PhaseConfig,
@@ -179,3 +205,5 @@ def execute_quantify(
         qobj.adapt(df[src])
         qdict.update({src: qobj})
     return qdict
+
+

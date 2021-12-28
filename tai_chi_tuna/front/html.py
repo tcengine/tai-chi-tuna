@@ -164,6 +164,10 @@ def list_group_kv(data: Dict[str, Any]) -> DOM:
 
 
 class Flash:
+    """
+    Show alert message in the frontend output
+    Flash.warning("Something will be wrong", key="Warn!")
+    """
     @staticmethod
     def create_msg_box(color, text, key:str = None):
         text = str(text)

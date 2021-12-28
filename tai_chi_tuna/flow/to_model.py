@@ -324,6 +324,10 @@ class AssembledModel(pl.LightningModule):
         vec = self.entry_dict(inputs)
         return self.exit_part(vec)
 
+    def eval_forward(self, inputs):
+        vec = self.entry_dict(inputs)
+        return self.exit_part.eval_forward(vec)
+
     def loss_step(self, inputs):
         vec = self.entry_dict(inputs)
         return self.exit_part.loss_step(vec, inputs[self.exit_src])

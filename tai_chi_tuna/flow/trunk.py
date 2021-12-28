@@ -16,7 +16,9 @@ from tai_chi_tuna.front.widget import interact_intercept
 
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
 from tai_chi_tuna.flow.to_quantify import (
-    execute_quantify, TaiChiDataset, choose_xy)
+    execute_quantify, TaiChiDataset, choose_xy, 
+    save_qdict, load_qdict
+    )
 from tai_chi_tuna.flow.to_model import set_datamodule, assemble_model
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
@@ -98,6 +100,7 @@ class StepModeling(TaiChiStep):
     def action(self, **kwargs):
         qdict = execute_quantify(df=self.df, phase=self.phase,
                                  quantify_map=self.quantify_map)
+        save_qdict(self.phase.project, qdict)
         self.progress['qdict'] = qdict
         set_datamodule(self.progress, self.df, qdict, self.phase,
                        self.quantify_2_entry_map, self.quantify_2_exit_map)
@@ -146,6 +149,8 @@ class TaiChiLearn:
         project: Path = None
     ):
         self.phase = PhaseConfig.load(project)
+        # this is a very strange step to step attribute outside of object
+        self.phase.project = project
         self.df = df
 
         # setup the progress data
