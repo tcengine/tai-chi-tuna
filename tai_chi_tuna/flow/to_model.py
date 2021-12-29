@@ -17,6 +17,7 @@ from torch import nn
 from typing import Dict, Any
 import pandas as pd
 from ipywidgets import HTML, Button, Output, interact_manual
+import logging
 
 # batching data part of the modeling
 
@@ -370,7 +371,7 @@ def assemble_model(
     qdict: Dict[str, Any],
     modules: Dict[str, Dict[str, nn.Module]],
 ) -> nn.Module:
-    Flash.info("Assemble model, takes time")
+    logging.info("Assemble model, takes time")
     EntryDict.update_module_zoo(modules)
     if "y_models" in phase:
         y_models = phase["y_models"]
@@ -380,5 +381,5 @@ def assemble_model(
             AssembledModel.update_module_zoo(modules)
             return AssembledModel(phase, qdict)
     else:
-        Flash.warning("No target model is specified")
+        logging.warning("No target model is specified")
         raise ValueError("phase must contain 'y_models' configuration for now")
