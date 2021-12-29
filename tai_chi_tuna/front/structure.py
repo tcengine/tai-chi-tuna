@@ -202,6 +202,12 @@ class StepByStep:
         top_board: HTML = None,
         kwargs: Dict[str, Any] = dict()
     ):
+        ishell = get_ipython()
+        ishell.run_cell_magic("javascript","","""
+IPython.OutputArea.prototype._should_scroll = function(lines) {
+    return false;
+}
+""")
         self.step_keys: List[str] = list(funcs.keys())
         self.steps: Dict[str, LivingStep] = dict(
             (k, LivingStep(f)) for k, f in funcs.items())
