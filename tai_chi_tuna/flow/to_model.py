@@ -317,6 +317,7 @@ class AssembledModel(pl.LightningModule):
 
         exit_quantify = qdict[self.exit_src]
 
+        # build the exit model
         self.exit_part = exit_cls.from_quantify(
             exit_quantify, self.entry_dict, **self.exit_kwargs)
 
@@ -369,6 +370,7 @@ def assemble_model(
     qdict: Dict[str, Any],
     modules: Dict[str, Dict[str, nn.Module]],
 ) -> nn.Module:
+    Flash.info("Assemble model, takes time")
     EntryDict.update_module_zoo(modules)
     if "y_models" in phase:
         y_models = phase["y_models"]
@@ -378,4 +380,5 @@ def assemble_model(
             AssembledModel.update_module_zoo(modules)
             return AssembledModel(phase, qdict)
     else:
+        Flash.warning("No target model is specified")
         raise ValueError("phase must contain 'y_models' configuration for now")

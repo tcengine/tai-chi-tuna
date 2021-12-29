@@ -11,7 +11,6 @@ from typing import Dict, Any
 from tqdm.notebook import tqdm
 import pandas as pd
 
-
 def set_enrich(**kwargs) -> None:
     df = kwargs['df']
     phase = kwargs['phase']

@@ -176,7 +176,12 @@ def load_qdict(
         quantify_cls_name = quant_conf['quantify']
         quantify_cls = quantify_map[quantify_cls_name]
         name = quant_conf['src']
+        # initialize the quantify object
         qobj = quantify_cls.load(project, name)
+        qobj.phase = phase
+        qobj.is_inference = True
+        qobj.src = quant_conf['src']
+        qobj.is_x = quant_conf['x']
         qdict[name] = qobj
     return qdict
 
@@ -199,7 +204,10 @@ def execute_quantify(
         x = qconf['x']
 
         cls = quantify_map[qname]
+        # initialize the quantify class
         qobj = cls(**kwargs)
+        qobj.phase = phase
+        qobj.is_inference = False
         qobj.src = src
         qobj.is_x = x
         qobj.adapt(df[src])

@@ -16,12 +16,14 @@ from tai_chi_tuna.front.widget import interact_intercept
 
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
 from tai_chi_tuna.flow.to_quantify import (
-    execute_quantify, TaiChiDataset, choose_xy, 
+    execute_quantify, TaiChiDataset, choose_xy,
     save_qdict, load_qdict
-    )
+)
 from tai_chi_tuna.flow.to_model import set_datamodule, assemble_model
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
+
+from tai_chi_tuna.utils import clean_name
 
 
 class TaiChiStep:
@@ -58,7 +60,7 @@ class StepEnrich(TaiChiStep):
         set_enrich(
             df=self.df, phase=self.phase,
             enrichments_map=self.enrichments_map
-            )
+        )
 
 # Phase 1 - Quantify
 
@@ -152,6 +154,9 @@ class TaiChiLearn:
         # this is a very strange step to step attribute outside of object
         self.phase.project = project
         self.df = df
+        # clean dirty column names
+        self.df = self.df.rename(columns=dict((col, clean_name(col))
+                                              for col in self.df.columns))
 
         # setup the progress data
         self.progress = dict(
@@ -175,7 +180,7 @@ class TaiChiLearn:
 
         # create a step by step interactive
         self.step_by_step = StepByStep(
-            self.steps, kwargs = self.progress)
+            self.steps, kwargs=self.progress)
 
     def __call__(self):
         """
