@@ -5,6 +5,7 @@ __all__ = ["DOM", "list_group", "list_group_kv",
 import math
 from IPython.display import HTML as DISPLAY_HTML
 from io import BytesIO
+import logging
 import base64
 from PIL.Image import Image as ImageClass
 from typing import Any, List, Dict
@@ -14,7 +15,9 @@ from ipywidgets import (
     HBox,
     Output,
     Button
-    )
+)
+
+HAVE_DISPLAY = True
 
 
 class DOM:
@@ -169,7 +172,7 @@ class Flash:
     Flash.warning("Something will be wrong", key="Warn!")
     """
     @staticmethod
-    def create_msg_box(color, text, key:str = None):
+    def create_msg_box(color, text, key: str = None):
         text = str(text)
         if key is not None:
             key = f"<strong>{key}</strong> "
@@ -178,41 +181,54 @@ class Flash:
         text_bar = HTML(f"""<div class='alert alert-{color}' role='alert'>
         {key} {text}</div>""", layout=Layout(width='95%'))
         close_btn = Button(description="x", layout=Layout(width='3%'))
-        
+
         total = HBox([text_bar, close_btn])
+
         def close_bar():
             total.close()
         close_btn.click = close_bar
         return total
-    
+
     @classmethod
-    def get_info(cls, text, key:str = None):
+    def get_info(cls, text, key: str = None):
         return cls.create_msg_box('info', text, key)
-    
+
     @classmethod
-    def get_warning(cls, text, key:str = None):
+    def get_warning(cls, text, key: str = None):
         return cls.create_msg_box('warning', text, key)
-    
+
     @classmethod
-    def get_danger(cls, text, key:str = None):
+    def get_danger(cls, text, key: str = None):
         return cls.create_msg_box('danger', text, key)
-    
+
     @classmethod
-    def get_success(cls, text, key:str = None):
+    def get_success(cls, text, key: str = None):
         return cls.create_msg_box('success', text, key)
-    
+
     @classmethod
-    def info(cls, text, key:str = None):
-        display(cls.get_info(text, key))
-    
+    def info(cls, text, key: str = None):
+        if HAVE_DISPLAY:
+            display(cls.get_info(text, key))
+        else:
+            logging.info(f"{key}:{text}")
+
     @classmethod
-    def warning(cls, text, key:str = None):
-        display(cls.get_warning(text, key))
-    
+    def warning(cls, text, key: str = None):
+        if HAVE_DISPLAY:
+            display(cls.get_warning(text, key))
+        else:
+            logging.warning(f"{key}:{text}")
+
     @classmethod
-    def danger(cls, text, key:str = None):
-        display(cls.get_danger(text, key))
-    
+    def danger(cls, text, key: str = None):
+        if HAVE_DISPLAY:
+            display(cls.get_danger(text, key))
+        else:
+            logging.error(f"{key}:{text}")
+
     @classmethod
-    def success(cls, text, key:str = None):
-        display(cls.get_success(text, key))
+    def success(cls, text, key: str = None):
+        if HAVE_DISPLAY:
+            display(cls.get_success(text, key))
+        else:
+            logging.debug(f"{key}:{text}")
