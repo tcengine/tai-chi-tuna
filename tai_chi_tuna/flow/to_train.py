@@ -4,6 +4,7 @@ from tai_chi_tuna.front.html import Flash
 from tai_chi_tuna.front.typer import STR, INT, BOOL
 from tai_chi_tuna.config import PhaseConfig
 import pytorch_lightning as pl
+import torch
 from torch import nn
 from typing import Callable, Dict, Any
 from forgebox.thunder.callbacks import DataFrameMetricsCallback
@@ -61,7 +62,12 @@ def set_trainer(
     rt.update({"callbacks": callbacks})
 
     if use_gpu:
-        rt.update(dict(gpus=1))
+        if torch.cuda.is_available():
+            rt.update(dict(gpus=1))
+        else:
+            Flash.warning(
+                "GPU is not available, use CPU instead", key="Warning")
+            rt.update(dict(gpus=0))
     return rt
 
 
