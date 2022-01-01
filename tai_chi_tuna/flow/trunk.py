@@ -19,7 +19,9 @@ from tai_chi_tuna.flow.to_quantify import (
     execute_quantify, TaiChiDataset, choose_xy,
     save_qdict, load_qdict
 )
-from tai_chi_tuna.flow.to_model import set_datamodule, assemble_model
+from tai_chi_tuna.flow.to_model import (
+    set_datamodule, assemble_model, set_opt_confs, ParamWizard
+    )
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
 
@@ -116,11 +118,18 @@ class StepTraining(TaiChiStep):
 
     def action(self, **kwargs):
         module_zoo = {"all_entry": self.all_entry, "all_exit": self.all_exit}
+        Flash.info(f"Creating final model, takes time...", key="ALERT")
         final_model = assemble_model(
             self.phase, self.qdict, module_zoo)
 
         # save some configuration
         self.phase.save()
+
+        self.param_wizard = ParamWizard(final_model)
+        self.param_wizard.set_configure_optimizers(self.phase)
+
+        set_opt_confs(self.param_wizard, self.phase)
+
         task_slug = make_slug_name(self.phase)
         self.phase['task_slug'] = task_slug
 
