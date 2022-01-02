@@ -160,7 +160,7 @@ def set_datamodule(progress, df, qdict, phase,
     # set_model_btn = Button(description="Set Batch",
     #                        icon='cog', button_style='info')
     # set_model_btn.click = set_model_btn_event
-    display(set_model_btn)
+    # display(set_model_btn)
     display(model_output)
 
 
