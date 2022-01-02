@@ -30,7 +30,12 @@ class ParamWizard:
         Assign the configure_optimizers to the model
         """
         def configure_optimizers(pl_cls,):
-            param_groups = self.create_param_groups(phase['param_groups'])
+            if 'param_groups' not in phase.config:
+                param_groups = pl_cls.parameters()
+            elif len(phase['param_groups'])==0:
+                param_groups = pl_cls.parameters()
+            else:
+                param_groups = self.create_param_groups(phase['param_groups'])
             opt = torch.optim.Adam(param_groups, lr=1e-4)
             pl_cls.optimizer = opt
             return opt

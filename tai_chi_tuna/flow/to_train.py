@@ -89,6 +89,8 @@ def run_training(
         # start training
         Flash.success(
             "Start training, this is not a drill!", key="Alert!")
+
+        phase.save()
         trainer.fit(final_model, datamodule=datamodule)
         return trainer
     return set_trainer_callback

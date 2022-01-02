@@ -201,7 +201,10 @@ def combine_prefix(prefix: str, sub: str) -> str:
 
 
 def set_opt_confs(wizard: ParamWizard, phase: PhaseConfig):
-    editable = EditableDict()
+    if 'param_groups' in phase:
+        editable = EditableDict(data_dict = phase['param_groups'])
+    else:
+        editable = EditableDict()
 
     @editable.on_update
     def set_phase(kwargs):
