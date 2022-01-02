@@ -21,7 +21,7 @@ import logging
 
 from .batching import TaiChiDataModule
 from .nn_parts import (nn, EntryDict, AssembledModel)
-from .optim_wizard import ParamWizard
+from .optimizing import ParamWizard
 
 
 def choose_models(
