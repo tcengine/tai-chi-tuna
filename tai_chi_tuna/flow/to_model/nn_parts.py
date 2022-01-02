@@ -1,4 +1,4 @@
-__all__ = ["EntryDict", "AssembledModel", "torch", "nn", "LightningMixin"]
+__all__ = ["EntryDict", "AssembledModel", "torch", "nn", "LightningMinimal"]
 
 from tai_chi_tuna.front.typer import LIST
 from tai_chi_tuna.config import PhaseConfig
@@ -64,7 +64,7 @@ class EntryDict(nn.Module):
         return cls
 
 
-class LightningMixin:
+class LightningMinimal(pl.LightningModule):
     """
     Default Mixin for lightning module
     """
@@ -111,7 +111,7 @@ class LightningMixin:
         return cls
 
 
-class AssembledModel(pl.LightningModule, LightningMixin):
+class AssembledModel(LightningMinimal):
     """
     Create the whole parts for different columns
     """
