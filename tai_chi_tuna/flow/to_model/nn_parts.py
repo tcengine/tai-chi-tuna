@@ -1,4 +1,4 @@
-__all__ = ["EntryDict", "AssembledModel","torch","nn"]
+__all__ = ["EntryDict", "AssembledModel", "torch", "nn", "LightningMixin"]
 
 from tai_chi_tuna.front.typer import LIST
 from tai_chi_tuna.config import PhaseConfig
@@ -64,7 +64,54 @@ class EntryDict(nn.Module):
         return cls
 
 
-class AssembledModel(pl.LightningModule):
+class LightningMixin:
+    """
+    Default Mixin for lightning module
+    """
+
+    def training_step(self, batch: torch.Tensor, batch_idx: int):
+        """
+        Training step in Lightning schema
+        return the loss, log all the metrics (and the loss)
+        """
+        rt = self.loss_step(batch)
+        for k, v in rt.items():
+            # if the value is a scalar, log it
+            if v.numel() == 1:
+                self.log(f"trn_{k}", v)
+        return rt['loss']
+
+    def validation_step(self, batch: torch.Tensor, batch_idx: int):
+        """
+        Validation step in Lightning schema
+        return the loss, log all the metrics (and the loss)
+        """
+        rt = self.loss_step(batch)
+        for k, v in rt.items():
+            # if the value is a scalar, log it
+            if v.numel() == 1:
+                self.log(f"val_{k}", v)
+        return rt['loss']
+
+    def configure_optimizers(self,):
+        param_groups = [
+            {"params": self.entry_dict.parameters(), "lr": self.entry_lr},
+            {"params": self.exit_part.parameters(), "lr": self.exit_lr},
+        ]
+        return torch.optim.Adam(param_groups)
+
+    @classmethod
+    def update_module_zoo(cls, modules: Dict[str, Dict[str, nn.Module]]):
+        """
+        Assign module_zoo map to the class
+        """
+        if 'all_exit' not in modules:
+            raise ValueError("'all_exit' model parts not in modules")
+        cls.module_zoo.update(modules)
+        return cls
+
+
+class AssembledModel(pl.LightningModule, LightningMixin):
     """
     Create the whole parts for different columns
     """
@@ -74,7 +121,8 @@ class AssembledModel(pl.LightningModule):
         self,
         phase: PhaseConfig,
         qdict: Dict[str, nn.Module],
-        entry_lr: LIST(options=[1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], default=1e-4) = 1e-4,
+        entry_lr: LIST(options=[1e-1, 1e-2, 1e-3, 1e-4,
+                       1e-5, 1e-6], default=1e-4) = 1e-4,
         exit_lr: LIST(options=[1e-1, 1e-2, 1e-3, 1e-4, ], default=1e-3) = 1e-3,
     ):
         super().__init__()
@@ -104,34 +152,3 @@ class AssembledModel(pl.LightningModule):
     def loss_step(self, inputs):
         vec = self.entry_dict(inputs)
         return self.exit_part.loss_step(vec, inputs[self.exit_src])
-
-    def training_step(self, batch, batch_idx):
-        rt = self.loss_step(batch)
-        for k, v in rt.items():
-            if v.numel() == 1:
-                self.log(f"trn_{k}", v)
-        return rt['loss']
-
-    def validation_step(self, batch, batch_idx):
-        rt = self.loss_step(batch)
-        for k, v in rt.items():
-            if v.numel() == 1:
-                self.log(f"val_{k}", v)
-        return rt['loss']
-
-    def configure_optimizers(self,):
-        param_groups = [
-            {"params": self.entry_dict.parameters(), "lr": self.entry_lr},
-            {"params": self.exit_part.parameters(), "lr": self.exit_lr},
-        ]
-        return torch.optim.Adam(param_groups)
-
-    @classmethod
-    def update_module_zoo(cls, modules: Dict[str, Dict[str, nn.Module]]):
-        """
-        Assign module_zoo map to the class
-        """
-        if 'all_exit' not in modules:
-            raise ValueError("'all_exit' model parts not in modules")
-        cls.module_zoo.update(modules)
-        return cls
