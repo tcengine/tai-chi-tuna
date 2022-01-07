@@ -20,7 +20,7 @@ def make_slug_name(phase: PhaseConfig) -> str:
 
 def set_trainer(
     phase,
-    project: STR(default="default",) = "default",
+    project: STR(default="default") = "default",
     tensorboard: BOOL(default=True) = True,
     show_metric: BOOL(default=True) = True,
     save_top_k: INT(default=1, min_=1, max_=5) = 1,

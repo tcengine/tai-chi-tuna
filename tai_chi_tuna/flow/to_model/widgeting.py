@@ -189,7 +189,7 @@ def optimizer_group_conf(
     freeze: BOOL(default=False),
     lr: LIST(options=list(
         f"1e-{i}" for i in range(1, 8)), default="1e-3") = "1e-3",
-    weight_decay: FLOAT(min_=0., max_=.3, default=.0, step=.01) = 0.,
+    weight_decay: FLOAT(min_=0., max_=.3, default=.0, step=.01) = 0.
 ):
     return dict(lr=lr, weight_decay=weight_decay)
 

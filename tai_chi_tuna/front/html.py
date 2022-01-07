@@ -16,6 +16,7 @@ from ipywidgets import (
     Output,
     Button
 )
+from IPython.display import display
 
 HAVE_DISPLAY = True
 

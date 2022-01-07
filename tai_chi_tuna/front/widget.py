@@ -7,6 +7,7 @@ from ipywidgets import (
 )
 from .html import Flash
 import json
+from IPython.display import display
 
 
 class InteractiveAnnotations:
