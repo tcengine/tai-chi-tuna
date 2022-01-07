@@ -6,8 +6,10 @@ from tai_chi_tuna.config import PhaseConfig
 import pytorch_lightning as pl
 import torch
 from torch import nn
-from typing import Callable, Dict, Any
-from forgebox.thunder.callbacks import DataFrameMetricsCallback
+import pandas as pd
+import copy
+from typing import Callable, Dict, Any, List
+from ipywidgets import Output
 from pathlib import Path
 from IPython.display import display
 
@@ -16,6 +18,38 @@ def make_slug_name(phase: PhaseConfig) -> str:
     xs = '-'.join(list(q['src'] for q in phase['quantify'] if q["x"]))
     ys = '-'.join(list(q['src'] for q in phase['quantify'] if q["x"] == False))
     return '_'.join([xs, 'to', ys])
+
+
+class DataFrameMetricsCallback(pl.Callback):
+    """
+    A metrics callback keep showing pandas dataframe
+    """
+
+    def __init__(self) -> None:
+        """
+        In Trainer kwargs, passing this arguements along with other callbacks
+        callbacks = [DataFrameMetricsCallback(),]
+        """
+        self.metrics: List = []
+
+    def on_fit_start(
+        self, trainer: pl.Trainer,
+        pl_module: pl.LightningModule
+    ) -> None:
+        pl_module.output = Output()
+        display(pl_module.output)
+
+    def on_validation_epoch_end(
+        self, trainer: pl.Trainer,
+        pl_module: pl.LightningModule
+    ) -> None:
+        metrics_dict = copy.copy(trainer.callback_metrics)
+        self.metrics.append(dict((k, v.item())
+                                 for k, v in metrics_dict.items()))
+        pl_module.output.clear_output()
+        with pl_module.output:
+            display(pd.DataFrame(self.metrics).tail(10))
+
 
 
 def set_trainer(

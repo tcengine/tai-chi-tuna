@@ -188,14 +188,13 @@ class TaiChiLearn:
             "Train": StepTraining(progress=self.progress),
         })
 
-        # create a step by step interactive
-        self.step_by_step = StepByStep(
-            self.steps, kwargs=self.progress)
-
     def __call__(self):
         """
         display the step by step interactive
         """
+        # create a step by step interactive
+        self.step_by_step = StepByStep(
+            self.steps, kwargs=self.progress)
         self.step_by_step()
 
     def __repr__(self):
