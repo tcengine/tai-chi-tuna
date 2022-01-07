@@ -9,6 +9,7 @@ from torch import nn
 from typing import Callable, Dict, Any
 from forgebox.thunder.callbacks import DataFrameMetricsCallback
 from pathlib import Path
+from IPython.display import display
 
 
 def make_slug_name(phase: PhaseConfig) -> str:

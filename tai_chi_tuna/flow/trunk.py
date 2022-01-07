@@ -26,6 +26,7 @@ from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
 
 from tai_chi_tuna.utils import clean_name
+from IPython.display import display
 
 
 class TaiChiStep:

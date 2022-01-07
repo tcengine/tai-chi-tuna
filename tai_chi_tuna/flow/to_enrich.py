@@ -10,6 +10,7 @@ from ipywidgets import HTML, interact_manual
 from typing import Dict, Any
 from tqdm.notebook import tqdm
 import pandas as pd
+from IPython.display import display
 
 def set_enrich(**kwargs) -> None:
     df = kwargs['df']

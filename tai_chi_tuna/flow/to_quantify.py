@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from tqdm.notebook import tqdm
+from IPython.display import display
 
 
 class SIZE_DIMENSION:

@@ -22,6 +22,7 @@ import logging
 from .batching import TaiChiDataModule
 from .nn_parts import (nn, EntryDict, AssembledModel)
 from .optimizing import ParamWizard
+from IPython.display import display
 
 
 def choose_models(
