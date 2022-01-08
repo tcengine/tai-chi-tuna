@@ -16,10 +16,17 @@ from tai_chi_tuna.front.widget import interact_intercept
 
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
 from tai_chi_tuna.flow.to_quantify import (
-    execute_quantify, TaiChiDataset, choose_xy)
-from tai_chi_tuna.flow.to_model import set_datamodule, assemble_model
+    execute_quantify, TaiChiDataset, choose_xy,
+    save_qdict, load_qdict
+)
+from tai_chi_tuna.flow.to_model import (
+    set_datamodule, assemble_model, set_opt_confs, ParamWizard
+    )
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
+
+from tai_chi_tuna.utils import clean_name
+from IPython.display import display
 
 
 class TaiChiStep:
@@ -60,7 +67,7 @@ class StepEnrich(TaiChiStep):
         set_enrich(
             df=self.df, phase=self.phase,
             enrichments_map=self.enrichments_map
-            )
+        )
 
 # Phase 1 - Quantify
 
@@ -102,6 +109,7 @@ class StepModeling(TaiChiStep):
     def action(self, **kwargs):
         qdict = execute_quantify(df=self.df, phase=self.phase,
                                  quantify_map=self.quantify_map)
+        save_qdict(self.phase.project, qdict)
         self.progress['qdict'] = qdict
         set_datamodule(self.progress, self.df, qdict, self.phase,
                        self.quantify_2_entry_map, self.quantify_2_exit_map)
@@ -115,11 +123,18 @@ class StepTraining(TaiChiStep):
 
     def action(self, **kwargs):
         module_zoo = {"all_entry": self.all_entry, "all_exit": self.all_exit}
+        Flash.info(f"Creating final model, takes time...", key="ALERT")
         final_model = assemble_model(
             self.phase, self.qdict, module_zoo)
 
         # save some configuration
         self.phase.save()
+
+        self.param_wizard = ParamWizard(final_model)
+        self.param_wizard.set_configure_optimizers(self.phase)
+
+        set_opt_confs(self.param_wizard, self.phase)
+
         task_slug = make_slug_name(self.phase)
         self.phase['task_slug'] = task_slug
 
@@ -150,7 +165,12 @@ class TaiChiLearn:
         project: Path = None
     ):
         self.phase = PhaseConfig.load(project)
+        # this is a very strange step to step attribute outside of object
+        self.phase.project = project
         self.df = df
+        # clean dirty column names
+        self.df = self.df.rename(columns=dict((col, clean_name(col))
+                                              for col in self.df.columns))
 
         # setup the progress data
         self.progress = dict(
@@ -172,14 +192,13 @@ class TaiChiLearn:
             "Train": StepTraining(progress=self.progress),
         })
 
-        # create a step by step interactive
-        self.step_by_step = StepByStep(
-            self.steps, kwargs = self.progress)
-
     def __call__(self):
         """
         display the step by step interactive
         """
+        # create a step by step interactive
+        self.step_by_step = StepByStep(
+            self.steps, kwargs=self.progress)
         self.step_by_step()
 
     def __repr__(self):

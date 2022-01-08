@@ -7,6 +7,8 @@ from ipywidgets import (
 from typing import List, Dict, Any, Callable
 import json
 from .html import list_group, list_group_kv
+from IPython.display import display
+
 
 total_width = Layout(width="100%")
 
@@ -202,6 +204,13 @@ class StepByStep:
         top_board: HTML = None,
         kwargs: Dict[str, Any] = dict()
     ):
+        from IPython import get_ipython
+        ishell = get_ipython()
+        ishell.run_cell_magic("javascript", "", """
+IPython.OutputArea.prototype._should_scroll = function(lines) {
+    return false;
+}
+""")
         self.step_keys: List[str] = list(funcs.keys())
         self.steps: Dict[str, LivingStep] = dict(
             (k, LivingStep(f)) for k, f in funcs.items())

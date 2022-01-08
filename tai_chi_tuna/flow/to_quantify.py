@@ -1,7 +1,7 @@
 __all__ = [
     "TaiChiDataset", "choose_xy", "execute_quantify",
     "SIZE_DIMENSION", "BATCH_SIZE", "SEQUENCE_SIZE",
-    "IMAGE_SIZE"
+    "IMAGE_SIZE", "save_qdict", "load_qdict",
 ]
 
 from tai_chi_tuna.front.html import DOM
@@ -14,7 +14,9 @@ from torch.utils.data import Dataset, DataLoader
 from typing import Dict, List, Tuple, Any
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from tqdm.notebook import tqdm
+from IPython.display import display
 
 
 class SIZE_DIMENSION:
@@ -153,6 +155,36 @@ def choose_xy(**kwargs):
 
             obj, decoded = init_interact(cls, result_callback)
 
+def save_qdict(project:Path, qdict: Dict[str, Any]):
+    """
+    Save the quantify dict to phase
+    """
+    project = Path(project)
+    project.mkdir(exist_ok=True)
+    for name, quantify in qdict.items():
+        quantify.save(project, name)
+    return project/"quantify"
+
+def load_qdict(
+    project:Path, phase: PhaseConfig, quantify_map: Dict[str, Any]
+    ) -> Dict[str, Any]:
+    """
+    Load the quantify dict from phase and disk saved info
+    """
+    project = Path(project)
+    qdict = dict()
+    for quant_conf in phase['quantify']:
+        quantify_cls_name = quant_conf['quantify']
+        quantify_cls = quantify_map[quantify_cls_name]
+        name = quant_conf['src']
+        # initialize the quantify object
+        qobj = quantify_cls.load(project, name)
+        qobj.phase = phase
+        qobj.is_inference = True
+        qobj.src = quant_conf['src']
+        qobj.is_x = quant_conf['x']
+        qdict[name] = qobj
+    return qdict
 
 def execute_quantify(
     df: pd.DataFrame, phase: PhaseConfig,
@@ -173,9 +205,14 @@ def execute_quantify(
         x = qconf['x']
 
         cls = quantify_map[qname]
+        # initialize the quantify class
         qobj = cls(**kwargs)
+        qobj.phase = phase
+        qobj.is_inference = False
         qobj.src = src
         qobj.is_x = x
         qobj.adapt(df[src])
         qdict.update({src: qobj})
     return qdict
+
+
