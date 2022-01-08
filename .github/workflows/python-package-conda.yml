@@ -38,6 +38,6 @@ jobs:
       run: |
         pip install tai-chi-engine
         git clone https://github.com/unpackAI/tai-chi.git
-        run: cd tai-chi
+        cd tai-chi
     - name: Test the engine part
       run: pytest -vv
