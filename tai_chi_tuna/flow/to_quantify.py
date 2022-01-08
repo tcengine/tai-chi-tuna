@@ -22,7 +22,7 @@ class SIZE_DIMENSION:
 
 
 class BATCH_SIZE(SIZE_DIMENSION):
-    def __repr__(self): return f"BATCH_SIZE"
+    pass
 
 
 class SEQUENCE_SIZE(SIZE_DIMENSION):
@@ -114,8 +114,8 @@ def choose_xy(**kwargs):
         by_destination = dict()
 
     data_list = phase[task] if task in phase else []
-    mol_box = EditableList(data_list)
-    display(mol_box)
+    quantify_list = EditableList(data_list)
+    display(quantify_list)
 
     @interact_manual
     def set_quantify_(src=list(df.columns), use_for=["As X", "As Y"]):
@@ -148,8 +148,8 @@ def choose_xy(**kwargs):
             def result_callback(kwargs):
                 extra = {"src": src, "x": (use_for == "As X"),
                          "kwargs": kwargs, "quantify": cls.__name__}
-                mol_box+extra
-                phase['quantify'] = mol_box.get_data()
+                quantify_list+extra
+                phase['quantify'] = quantify_list.get_data()
 
             obj, decoded = init_interact(cls, result_callback)
 

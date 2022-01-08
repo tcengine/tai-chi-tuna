@@ -49,6 +49,10 @@ class TaiChiStep:
 
 
 class StepEnrich(TaiChiStep):
+    """
+    Enrichment Step
+    """
+    
     def __init__(self, progress: Dict[str, Any]):
         super().__init__("Enrich", progress)
 
