@@ -9,13 +9,13 @@ jobs:
       matrix:
         python: [3.7, 3.8, 3.9, "3.10"]
         os: [ubuntu-latest]
-        include:
-        - python: 3.9
-          os: macos-latest
-          experimental: true
-        - python: 3.7
-          os: windows-latest
-          experimental: true
+        # include:
+        # - python: 3.9
+        #   os: macos-latest
+        #   experimental: true
+        # - python: 3.7
+        #   os: windows-latest
+        #   experimental: true
 
     steps:
     - uses: actions/checkout@v2
@@ -33,4 +33,11 @@ jobs:
         pip install -r requirements-test.txt
         pip install -e .
     - name: Test with pytest
+      run: pytest -vv
+    - name: Install the engine part
+      run: |
+        pip install tai-chi-engine
+        git clone https://github.com/raynardj/tai-chi-engine
+        cd tai-chi-engine
+    - name: Test the engine part
       run: pytest -vv
