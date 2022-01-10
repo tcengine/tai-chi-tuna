@@ -1,6 +1,11 @@
 name: Python Package using Conda
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - docs
+      - README.md
+      - nbs
 
 jobs:
   build-linux:

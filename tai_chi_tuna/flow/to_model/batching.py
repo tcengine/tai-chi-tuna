@@ -69,14 +69,18 @@ class TaiChiDataModule(pl.LightningDataModule):
         self.train_dl = self.train_ds.dataloader(
             batch_size=self.batch_size,
             shuffle=self.shuffle,
-            num_workers=self.num_workers)
+            num_workers=self.num_workers,
+            drop_last = True,
+            )
         self.train_dl.collate_fn = self.collate
         return self.train_dl
 
     def val_dataloader(self):
         self.val_dl = self.val_ds.dataloader(
             batch_size=self.batch_size,
-            shuffle=self.shuffle,
-            num_workers=self.num_workers)
+            shuffle=False,
+            num_workers=self.num_workers, 
+            drop_last = False,
+            )
         self.val_dl.collate_fn = self.collate
         return self.val_dl
