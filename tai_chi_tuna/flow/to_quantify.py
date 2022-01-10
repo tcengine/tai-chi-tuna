@@ -84,6 +84,7 @@ class TaiChiDataset(Dataset):
         batch_size: LIST(options=[1, 2, 4, 8, 16, 32, 64, 128, 256, 512], default=32) = 32,
         shuffle: LIST(options=[True, False], default=False) = False,
         num_workers: LIST(options=[0, 2, 4, 8, 16], default=0) = 0,
+        drop_last = False,
     ) -> DataLoader:
         """
         Create dataloader from dataset
@@ -92,7 +93,9 @@ class TaiChiDataset(Dataset):
             self,
             batch_size=batch_size,
             shuffle=shuffle,
-            num_workers=num_workers)
+            num_workers=num_workers,
+            drop_last=drop_last,
+            )
 
 
 def choose_xy(**kwargs):
