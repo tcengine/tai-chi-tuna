@@ -202,5 +202,8 @@ class TaiChiLearn:
         self.step_by_step()
 
     def __repr__(self):
-        return f"{self.step_by_step} with keys:\n" + \
-            f"{list(self.progress.keys())}"
+        if hasattr(self, 'step_by_step'):
+            return f"{self.step_by_step} with keys:\n" + \
+                f"{list(self.progress.keys())}"
+        else:
+            return f"Engine on project:{self.phase.project}"
