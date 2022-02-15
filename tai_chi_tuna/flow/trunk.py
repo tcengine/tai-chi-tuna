@@ -21,7 +21,7 @@ from tai_chi_tuna.flow.to_quantify import (
 )
 from tai_chi_tuna.flow.to_model import (
     set_datamodule, assemble_model, set_opt_confs, ParamWizard
-    )
+)
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
 
@@ -59,7 +59,7 @@ class StepEnrich(TaiChiStep):
     """
     Enrichment Step
     """
-    
+
     def __init__(self, progress: Dict[str, Any]):
         super().__init__("Enrich", progress)
 
@@ -123,6 +123,8 @@ class StepTraining(TaiChiStep):
 
     def action(self, **kwargs):
         module_zoo = {"all_entry": self.all_entry, "all_exit": self.all_exit}
+
+        # assemble a pytorch model
         Flash.info(f"Creating final model, takes time...", key="ALERT")
         final_model = assemble_model(
             self.phase, self.qdict, module_zoo)
@@ -139,11 +141,14 @@ class StepTraining(TaiChiStep):
         self.phase['task_slug'] = task_slug
 
         self.progress['model'] = final_model
+        # create a training function based on 
+        training_function = run_training(
+            self.phase, # configuration
+            final_model, # pytroch model
+            self.datamodule) # data pipeline
+
         interact_intercept(set_trainer,
-                           run_training(
-                               self.phase,
-                               final_model, self.datamodule)
-                           )
+                           training_function)
 
 
 class TaiChiLearn:

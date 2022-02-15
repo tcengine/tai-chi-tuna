@@ -51,7 +51,6 @@ class DataFrameMetricsCallback(pl.Callback):
             display(pd.DataFrame(self.metrics).tail(10))
 
 
-
 def set_trainer(
     phase,
     project: STR(default='default') = 'default',
