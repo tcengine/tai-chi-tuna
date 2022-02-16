@@ -129,17 +129,6 @@ def deeper(x):
     return x
 
 
-def list_group(iterable: List[Any]) -> DOM:
-    """
-    Create a DOM that will display a bootstrap list group
-    """
-    ul = DOM("", "ul", {"class": "list-group"})
-    for i in iterable:
-        li = DOM(deeper(i), "li", {"class": "list-group-item"})
-        ul.append(li)
-    return ul
-
-
 def col_sm(iterable: List[Any], portions: List[float] = None,):
     """
     Create a DOM that will create a div with col-sm-<portion>
@@ -153,18 +142,38 @@ def col_sm(iterable: List[Any], portions: List[float] = None,):
     return row
 
 
+def list_group(iterable: List[Any]) -> DOM:
+    """
+    Create a DOM that will display a bootstrap list group
+    """
+    table = DOM("", "table", {"class": ".table"})
+    for i in iterable:
+        row = DOM("", "tr", {"class":"tr", "style": "color:#FF5522;padding:2px"})
+        cell = DOM(
+            deeper(i), "td",
+            {"class":"td",
+            "style": "color:#333355;padding:2px;border-bottom:1px solid #333355"})
+        row.append(cell)
+        table.append(row)
+    return table
+
+
 def list_group_kv(data: Dict[str, Any]) -> DOM:
     """
     Create a DOM, using a dictionary
         that will display a bootstrap list group
     """
-    result = []
+    result = DOM("", "table", {"class": ".table"})
     for k, v in data.items():
-        row = DOM("", "div", {"class": "row"})
-        row.append(DOM(f"{k}", "strong", {"class": "col-sm-5"}))\
-            .append(DOM(f"{deeper(v)}", "span", {"class": "col-sm-7"}))
+        row = DOM("", "tr", {"class": "tr"})
+        row.append(DOM(f"{k}:", "th", {"class": "font-weight-bold th", "style":"color:#FF5522;padding:2px"}))\
+            .append(DOM(
+                f"{deeper(v)} ",
+                "td",
+                {"class": "font-weight-bold td",
+                "style":"color:#333355;padding:2px;border-bottom:1px solid #333355"}))
         result.append(row)
-    return list_group(result)
+    return result
 
 
 class Flash:
