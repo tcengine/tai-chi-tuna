@@ -27,6 +27,8 @@ class InteractiveAnnotations:
         self.button_style = button_style
         self.description = description
         self.build_vbox(func)
+        self.out = Output()
+        display(self.out)
 
     @classmethod
     def on(
@@ -82,8 +84,10 @@ class InteractiveAnnotations:
         callback: Callable
     ) -> None:
         def run_callback():
-            kwargs = self()
-            callback(kwargs)
+            with self.out:
+                kwargs = self()
+                self.latest_data = kwargs
+                callback(kwargs)
         self.final_btn.click = run_callback
 
     def __call__(self) -> Dict[str, Any]:
@@ -127,6 +131,9 @@ def interact_intercept(
 ):
     """
     Initialize a class with interactive features
+    func: the original decorated function for interact_manual,
+        the annotation of the function will be interpreted
+    result_cb: the callback function to process the result
     """
     annotations = func.__annotations__
     defaults = func.__defaults__
@@ -149,6 +156,10 @@ def interact_intercept(
         original = btn.click
 
         def new_click_event():
+            """
+            This function will be called
+            When the interact_manual's button is clicked
+            """
             with out:
                 original()
                 res = result_cb(obj['kwargs'])
