@@ -130,6 +130,8 @@ def choose_xy(**kwargs):
         quantify_dropdown = Dropdown(options=list(QUANTIFY.keys()))
 
         # check the hint from last step
+        # if we enrich the column as image,
+        # we would certainly prefer QuantifyImage as Quantifying step
         prefer = None
         if src in by_destination:
             col_config = by_destination[src]
@@ -148,12 +150,16 @@ def choose_xy(**kwargs):
 
         @interact_manual
         def choose_quantify(quantify=quantify_dropdown):
+            # get the quantify class
             cls = QUANTIFY[quantify]
 
             def result_callback(kwargs):
+                # new configuration about quantify
                 extra = {"src": src, "x": (use_for == "As X"),
                          "kwargs": kwargs, "quantify": cls.__name__}
+                # add the new config to editable list
                 quantify_list+extra
+                # update the editable list to phase
                 phase['quantify'] = quantify_list.get_data()
 
             obj, decoded = init_interact(cls, result_callback)

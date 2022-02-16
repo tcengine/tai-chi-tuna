@@ -7,21 +7,27 @@ from ipywidgets import HTML, IntSlider, interact
 from typing import List, Callable, Any, Dict
 import pandas as pd
 from pathlib import Path
-
+# configuration
 from tai_chi_tuna.config import PhaseConfig
 
+# frontend & interactive
 from tai_chi_tuna.front.html import list_group_kv, Flash
 from tai_chi_tuna.front.structure import StepByStep
 from tai_chi_tuna.front.widget import interact_intercept
 
+# workflow
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
 from tai_chi_tuna.flow.to_quantify import (
     execute_quantify, TaiChiDataset, choose_xy,
     save_qdict, load_qdict
 )
+
+# modeling
 from tai_chi_tuna.flow.to_model import (
     set_datamodule, assemble_model, set_opt_confs, ParamWizard
 )
+
+#training
 from tai_chi_tuna.flow.to_train import (
     make_slug_name, set_trainer, run_training)
 
@@ -189,7 +195,7 @@ class TaiChiLearn:
             all_exit=self.all_exit
         )
 
-        # define steps
+        # chain up all the steps
         self.steps = dict({
             "Enrich": StepEnrich(progress=self.progress),
             "Quantify": StepQuantify(progress=self.progress),

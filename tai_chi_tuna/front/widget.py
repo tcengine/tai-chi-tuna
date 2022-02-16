@@ -3,7 +3,7 @@ __all__ = ["InteractiveAnnotations", "interact_intercept", "init_interact",
 
 from typing import Callable, Dict, Any
 from ipywidgets import (
-    interact_manual, Button, VBox
+    interact_manual, Button, VBox, Output
 )
 from .html import Flash
 import json
@@ -143,13 +143,16 @@ def interact_intercept(
     f = interact_manual(fillin_init, **kwargs)
 
     btn = reconfig_manual_interact(f.widget)
-
+    out = Output()
+    display(out)
     if btn is not None:
         original = btn.click
 
         def new_click_event():
-            original()
-            return result_cb(obj['kwargs'])
+            with out:
+                original()
+                res = result_cb(obj['kwargs'])
+            return res
         btn.click = new_click_event
 
     return obj, f
