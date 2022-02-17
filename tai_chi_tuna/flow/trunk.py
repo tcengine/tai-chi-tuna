@@ -36,6 +36,13 @@ from IPython.display import display
 
 
 class TaiChiStep:
+    """
+    This is a concept of the step object
+    Where a single step can be defined here,
+        and going back to if necessary
+    Will execute the class function action(self, **kwargs)
+    When the object is called as a method
+    """
     def __init__(self, name: str, progress: Dict[str, Any]):
         self.name = name
         self.progress = progress
@@ -64,6 +71,8 @@ class TaiChiStep:
 class StepEnrich(TaiChiStep):
     """
     Enrichment Step
+    Where user can add more dataframe columns
+    The step can be defined and automated later
     """
 
     def __init__(self, progress: Dict[str, Any]):
@@ -79,6 +88,11 @@ class StepEnrich(TaiChiStep):
 
 
 class StepQuantify(TaiChiStep):
+    """
+    Quantify: The step where the user can:
+    1. Choose the x and y columns, there could be multiple x columns
+    2. Choose how the columns' data can be quantify to tensors
+    """
     def __init__(self, progress: Dict[str, Any]):
         super().__init__("Quantify", progress)
 
@@ -109,14 +123,22 @@ class StepQuantify(TaiChiStep):
 
 
 class StepModeling(TaiChiStep):
+    """
+    This step defines how we create a deep learning model
+    """
     def __init__(self, progress: Dict[str, Any]):
         super().__init__("Modeling", progress)
 
     def action(self, **kwargs):
+        # bring configuration of quantify details
+        # to actual python objects
         qdict = execute_quantify(df=self.df, phase=self.phase,
                                  quantify_map=self.quantify_map)
         save_qdict(self.phase.project, qdict)
+
+        # save the qdict to the progress
         self.progress['qdict'] = qdict
+
         set_datamodule(self.progress, self.df, qdict, self.phase,
                        self.quantify_2_entry_map, self.quantify_2_exit_map)
 
