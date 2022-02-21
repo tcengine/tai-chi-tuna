@@ -197,6 +197,7 @@ class TaiChiLearn:
         df: pd.DataFrame,
         project: Path = None
     ):
+        project = Path(project)
         self.phase = PhaseConfig.load(project)
         # this is a very strange step to step attribute outside of object
         self.phase.project = project
