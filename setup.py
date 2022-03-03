@@ -38,10 +38,10 @@ requirements = cfg.get("requirements", "").split()
 min_python = cfg["min_python"]
 comp_version = py_versions[py_versions.index(min_python):]
 
-with open('tai-chi-tuna/__init__.py', 'r') as f:
+with open('tai_chi_tuna/__init__.py', 'r') as f:
     lines = f.readlines()
 
-with open('tai-chi-tuna/__init__.py', 'w') as f:
+with open('tai_chi_tuna/__init__.py', 'w') as f:
     version = cfg["version"]
     first_line = f'__version__ = "{version}"\n'
     f.write(first_line)
