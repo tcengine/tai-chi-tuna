@@ -14,6 +14,7 @@ from tai_chi_tuna.config import PhaseConfig
 from tai_chi_tuna.front.html import list_group_kv, Flash
 from tai_chi_tuna.front.structure import StepByStep
 from tai_chi_tuna.front.widget import interact_intercept
+from tai_chi_tuna.front.teacher import TunaTeacher, teach
 
 # workflow
 from tai_chi_tuna.flow.to_enrich import set_enrich, execute_enrich
@@ -66,8 +67,7 @@ class TaiChiStep:
         return self.action(**kwargs)
 
 # Phase 1 - Enrichment
-
-
+@TunaTeacher("step1_enrich.html")
 class StepEnrich(TaiChiStep):
     """
     Enrichment Step
@@ -79,14 +79,14 @@ class StepEnrich(TaiChiStep):
         super().__init__("Enrich", progress)
 
     def action(self, **kwargs):
+        teach(self)
         set_enrich(
             df=self.df, phase=self.phase,
             enrichments_map=self.enrichments_map
         )
 
-# Phase 1 - Quantify
-
-
+# Phase 2 - Quantify
+@TunaTeacher(html_path="step2_quantify.html")
 class StepQuantify(TaiChiStep):
     """
     Quantify: The step where the user can:
@@ -97,6 +97,7 @@ class StepQuantify(TaiChiStep):
         super().__init__("Quantify", progress)
 
     def action(self, **kwargs):
+        teach(self)
         execute_enrich(
             df=self.df,
             phase=self.phase,
@@ -120,8 +121,7 @@ class StepQuantify(TaiChiStep):
             **self.progress)
 
 # Phase 3 - Modeling
-
-
+@TunaTeacher(html_path="step3_modeling.html")
 class StepModeling(TaiChiStep):
     """
     This step defines how we create a deep learning model
@@ -130,6 +130,7 @@ class StepModeling(TaiChiStep):
         super().__init__("Modeling", progress)
 
     def action(self, **kwargs):
+        teach(self)
         # bring configuration of quantify details
         # to actual python objects
         qdict = execute_quantify(df=self.df, phase=self.phase,
@@ -143,13 +144,13 @@ class StepModeling(TaiChiStep):
                        self.quantify_2_entry_map, self.quantify_2_exit_map)
 
 # Phase 4 - Training
-
-
+@TunaTeacher(html_path="step4_training.html")
 class StepTraining(TaiChiStep):
     def __init__(self, progress: Dict[str, Any]):
         super().__init__("Training", progress)
 
     def action(self, **kwargs):
+        teach(self)
         module_zoo = {"all_entry": self.all_entry, "all_exit": self.all_exit}
 
         # assemble a pytorch model
