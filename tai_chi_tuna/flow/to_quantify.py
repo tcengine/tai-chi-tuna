@@ -9,7 +9,7 @@ from tai_chi_tuna.front.typer import FLOAT, LIST
 from tai_chi_tuna.front.structure import EditableList
 from tai_chi_tuna.front.widget import init_interact
 from tai_chi_tuna.config import PhaseConfig
-from ipywidgets import HTML, Dropdown, interact_manual
+from ipywidgets import HTML, Dropdown, interact_manual, Output
 from torch.utils.data import Dataset, DataLoader
 from typing import Dict, List, Tuple, Any
 import numpy as np
@@ -17,6 +17,7 @@ import pandas as pd
 from pathlib import Path
 from tqdm.notebook import tqdm
 from IPython.display import display
+from tai_chi_tuna.front.teacher import teach
 
 
 class SIZE_DIMENSION:
@@ -84,7 +85,7 @@ class TaiChiDataset(Dataset):
         batch_size: LIST(options=[1, 2, 4, 8, 16, 32, 64, 128, 256, 512], default=32) = 32,
         shuffle: LIST(options=[True, False], default=False) = False,
         num_workers: LIST(options=[0, 2, 4, 8, 16], default=0) = 0,
-        drop_last = False,
+        drop_last=False,
     ) -> DataLoader:
         """
         Create dataloader from dataset
@@ -95,7 +96,7 @@ class TaiChiDataset(Dataset):
             shuffle=shuffle,
             num_workers=num_workers,
             drop_last=drop_last,
-            )
+        )
 
 
 def choose_xy(**kwargs):
@@ -122,6 +123,10 @@ def choose_xy(**kwargs):
     quantify_list = EditableList(data_list)
     display(quantify_list)
 
+    @quantify_list.on_update
+    def update_to_phase(data):
+        phase["quantify"] = data
+
     @interact_manual
     def set_quantify_(src=list(df.columns), use_for=["As X", "As Y"]):
         DOM(f"Quantify Column: {src} {use_for}", "h4")()
@@ -144,9 +149,22 @@ def choose_xy(**kwargs):
                 # set default value to drop down value,
                 # if the the previous hint suggest so
                 quantify_dropdown.value = prefer
-                DOM(f"Prefered quantifying:\t{cls.prefer}", "h4")()
+                DOM(f"Prefered:\t{cls.prefer}", "h4")()
             if hasattr(cls, "typing"):
                 DOM(f"Output data type:\t{cls.typing}", "h4")()
+        quantify_teacher_out = Output()
+        display(quantify_teacher_out)
+
+        def show_quantify_teacher(_o):
+            """
+            show the teacher content of quantify
+            """
+            quantify_teacher_out.clear_output()
+            with quantify_teacher_out:
+                teach(QUANTIFY[quantify_dropdown.value])
+
+        show_quantify_teacher(None)
+        quantify_dropdown.observe(show_quantify_teacher, "value")
 
         @interact_manual
         def choose_quantify(quantify=quantify_dropdown):
@@ -159,12 +177,10 @@ def choose_xy(**kwargs):
                          "kwargs": kwargs, "quantify": cls.__name__}
                 # add the new config to editable list
                 quantify_list+extra
-                # update the editable list to phase
-                phase['quantify'] = quantify_list.get_data()
-
             obj, decoded = init_interact(cls, result_callback)
 
-def save_qdict(project:Path, qdict: Dict[str, Any]):
+
+def save_qdict(project: Path, qdict: Dict[str, Any]):
     """
     Save the quantify dict to phase
     """
@@ -174,9 +190,10 @@ def save_qdict(project:Path, qdict: Dict[str, Any]):
         quantify.save(project, name)
     return project/"quantify"
 
+
 def load_qdict(
-    project:Path, phase: PhaseConfig, quantify_map: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    project: Path, phase: PhaseConfig, quantify_map: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Load the quantify dict from phase and disk saved info
     """
@@ -194,6 +211,7 @@ def load_qdict(
         qobj.is_x = quant_conf['x']
         qdict[name] = qobj
     return qdict
+
 
 def execute_quantify(
     df: pd.DataFrame, phase: PhaseConfig,
@@ -223,5 +241,3 @@ def execute_quantify(
         qobj.adapt(df[src])
         qdict.update({src: qobj})
     return qdict
-
-

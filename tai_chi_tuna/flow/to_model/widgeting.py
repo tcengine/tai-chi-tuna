@@ -92,29 +92,35 @@ def set_model(
     display(HTML("<h4>Change model config:</h4>"))
     for src, quantify in quantify_dict.items():
         if quantify.is_x:
-            entry_cls_options = dict(
-                (q.__name__, q)
-                for q in quantify_2_entry_map.get(quantify.__class__))
+            possible_models = quantify_2_entry_map.get(quantify.__class__)
 
-            if entry_cls_options is None:
+            if possible_models is None:
                 Flash.danger(
-                    f"We do not support {quantify.__class__} as X data",
+                    f"We do not support {quantify.__class__.__name__} as X data",
                     key="Error!")
                 continue
+
+            entry_cls_options = dict(
+                (q.__name__, q)
+                for q in possible_models)
+
             display(HTML(f"""
             <h3 class='text-primary'>Choose Model For X Columns:
             <strong>{src}</strong></h3>"""))
             choose_models(quantify, entry_cls_options, x_models)
     for src, quantify in quantify_dict.items():
         if quantify.is_x == False:
-            exit_cls_options = dict(
-                (q.__name__, q)
-                for q in quantify_2_exit_map.get(quantify.__class__))
-            if entry_cls_options is None:
+            possible_models = quantify_2_exit_map.get(quantify.__class__)
+            if possible_models is None:
                 Flash.danger(
-                    f"We do not support {quantify.__class__} as Y data",
+                    f"We do not support {quantify.__class__.__name__} as Y data",
                     key="Error!"
                 )
+                continue
+            exit_cls_options = dict(
+                (q.__name__, q)
+                for q in possible_models)
+
             display(HTML(f"""
             <h3 class='text-danger'>Choose Model For Y Column:
             <strong>{src}</strong></h3>"""))
@@ -203,7 +209,7 @@ def combine_prefix(prefix: str, sub: str) -> str:
 
 def set_opt_confs(wizard: ParamWizard, phase: PhaseConfig):
     if 'param_groups' in phase:
-        editable = EditableDict(data_dict = phase['param_groups'])
+        editable = EditableDict(data_dict=phase['param_groups'])
     else:
         editable = EditableDict()
 
